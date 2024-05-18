@@ -24,7 +24,7 @@ module.exports = {
 			},
 		},
 		{
-			"files": ["packages/web_ui/src/**/*.jsx", "plugins/*/web/**/*.jsx"],
+			"files": ["web/**/*.jsx"],
 			"env": {
 				"browser": true,
 			},
@@ -32,6 +32,9 @@ module.exports = {
 				"sourceType": "module",
 				"ecmaFeatures": {
 					"jsx": true,
+				},
+				"rules": {
+					"node/no-unpublished-import": "off",
 				},
 			},
 		},
@@ -199,7 +202,7 @@ module.exports = {
 		"no-spaced-func": "error",
 		"no-sync": "error",
 		"node/no-unpublished-bin": "error",
-		"node/no-unpublished-import": "error",
+		"node/no-unpublished-import": "off",
 		"node/no-unpublished-require": [
 			"error",
 			{ "allowModules": ["@clusterio/web_ui", "webpack", "webpack-merge", "webpack-dev-middleware"] },

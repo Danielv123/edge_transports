@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Select, Modal, InputNumber, Divider } from "antd";
+import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import { useInstance, useInstanceConfig } from "@clusterio/web_ui";
 import { InstanceSelector } from "./InstanceSelector";
 import { direction_to_text } from "../util";
@@ -29,15 +30,18 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 		>
 			{edges.map((edge, index) => <>
 				<Divider />
-				<EditEdge key={index} edge={edge} onChange={(newEdge) => {
-					setNewValue({
-						...newValue, edges: [
-							...edges.slice(0, index),
-							newEdge,
-							...edges.slice(index + 1),
-						],
-					});
-				}} />
+				<EditEdge
+					key={index}
+					edge={edge}
+					onChange={(newEdge) => {
+						setNewValue({
+							...newValue, edges: [
+								...edges.slice(0, index),
+								newEdge,
+								...edges.slice(index + 1),
+							],
+						});
+					}} />
 			</>)}
 			{/* Button to add new edge */}
 			<Button onClick={() => {
@@ -53,7 +57,7 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 					],
 				});
 			}}>
-				Add Edge
+				<PlusOutlined /> Add Edge
 			</Button>
 		</Modal>
 	</>;
@@ -124,7 +128,12 @@ function EditEdge({ edge, onChange }) {
 				onSelect={(value) => onChange({ ...edge, target_instance: value })}
 			/>
 		</div>
-		<div>
+		<div
+			style={{
+				// Prevent children from splitting into 2 lines
+				whiteSpace: "nowrap",
+			}}
+		>
 			<span {...leftProps}>Target Edge</span>
 			<div style={{
 				display: "inline-block",
@@ -157,9 +166,15 @@ function TargetEdgeInfo({ edge }) {
 
 	if (!target_edge) { return ""; }
 
+	let status = "Target has matching configuration";
+	if (target_edge.target_edge !== edge.id) {
+		status = `Target configured to ID ${target_edge.target_edge} instead of ${edge.id}`;
+	}
+
 	// Visualize some information about the target edge to make it easier to pick the right one
 	return <div>
 		<p>Surface {target_edge.surface} at x{target_edge.origin?.[0]}, y{target_edge.origin?.[1]}</p>
 		<p>Pointing {direction_to_text(target_edge.direction)}</p>
+		<p style={{ whiteSpace: "wrap" }}>{status}</p>
 	</div>;
 }

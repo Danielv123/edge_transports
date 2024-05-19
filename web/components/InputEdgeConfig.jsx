@@ -44,7 +44,12 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 				setNewValue({
 					...newValue, edges: [
 						...edges,
-						{},
+						{
+							surface: 1,
+							origin: [0, 0],
+							direction: 0,
+							length: 10,
+						},
 					],
 				});
 			}}>

@@ -11,7 +11,7 @@ function EdgeStatusTag({ edge, instanceId = null }) {
 	const config = useInstanceConfig(edge.target_instance);
 	const target_edge = config?.["edge_transports.internal"]?.edges?.find?.(e => e.id === edge.target_edge);
 	const [targetEdgeTargetInstance] = useInstance(target_edge?.target_instance);
-	console.log("Status tag", edge, instanceId, instanceId !== null);
+
 	if (!edge.target_edge) {
 		return <Tag>Incomplete</Tag>;
 	}
@@ -22,7 +22,7 @@ function EdgeStatusTag({ edge, instanceId = null }) {
 	}
 	if (instanceId !== null && target_edge.target_instance !== instanceId) {
 		// eslint-disable-next-line max-len
-		return <Tooltip title={`Edge on target instance has incorrect instance target (${targetEdgeTargetInstance.name})`}>
+		return <Tooltip title={`Edge on target instance is targetting incorrect instance (${instance.name} != ${targetEdgeTargetInstance.name})`}>
 			<Tag color="error">Inconsistent</Tag>
 		</Tooltip>;
 	}
@@ -37,6 +37,11 @@ function EdgeStatusTag({ edge, instanceId = null }) {
 }
 
 export function InputEdgeConfig({ value, onChange }) {
+	// Shim for clusterio being inconsistent with object vs stringified object handling
+	if (typeof value === "string") {
+		value = JSON.parse(value);
+	}
+
 	const [visible, setVisible] = React.useState(false);
 	const [newValue, setNewValue] = React.useState(value);
 
@@ -48,9 +53,9 @@ export function InputEdgeConfig({ value, onChange }) {
 				<Space>
 					<EdgeStatusTag
 						edge={edge}
-						// Clusterio does not currently provide a way for a config input field to access the current
-						// instances ID so I am leaving this code disabled
-						// instanceId={instanceId}
+					// Clusterio does not currently provide a way for a config input field to access the current
+					// instances ID so I am leaving this code disabled
+					// instanceId={instanceId}
 					/>
 					<Button onClick={() => {
 						setNewValue({

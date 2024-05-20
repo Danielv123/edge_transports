@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Select, Modal, InputNumber, Divider } from "antd";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
+import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import { useInstance, useInstanceConfig } from "@clusterio/web_ui";
 import { InstanceSelector } from "./InstanceSelector";
 import { direction_to_text } from "../util";
@@ -28,8 +29,19 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 				setVisible(false);
 			}}
 		>
-			{edges.map((edge, index) => <>
-				<Divider />
+			{edges.map((edge, index) => <div key={`${index} ${edge.id}`}>
+				<Divider orientation="right">
+					<Button onClick={() => {
+						setNewValue({
+							...newValue, edges: [
+								...edges.slice(0, index),
+								...edges.slice(index + 1),
+							],
+						});
+					}}>
+						<DeleteOutlined />
+					</Button>
+				</Divider>
 				<EditEdge
 					key={index}
 					edge={edge}
@@ -42,7 +54,7 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 							],
 						});
 					}} />
-			</>)}
+			</div>)}
 			{/* Button to add new edge */}
 			<Button onClick={() => {
 				setNewValue({
@@ -162,7 +174,6 @@ function TargetEdgeInfo({ edge }) {
 	const [instance] = useInstance(edge.target_instance);
 	const config = useInstanceConfig(edge.target_instance);
 	const target_edge = config?.["edge_transports.internal"]?.edges?.find?.(e => e.id === edge.target_edge);
-	console.log(instance, config, target_edge);
 
 	if (!target_edge) { return ""; }
 

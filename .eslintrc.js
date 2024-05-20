@@ -41,6 +41,9 @@ module.exports = {
 	],
 
 	"rules": {
+		"node/no-missing-import": ["error", {
+			"tryExtensions": [".js", ".jsx", ".json", ".node"],
+		}],
 		"accessor-pairs": "error",
 		"array-bracket-newline": "off",
 		"array-bracket-spacing": ["error", "never"],

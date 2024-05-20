@@ -1,16 +1,84 @@
 import React from "react";
-import { Button, Select, Modal, InputNumber, Divider } from "antd";
+import { Button, Select, Modal, InputNumber, Divider, Tag, Tooltip, Space } from "antd";
 import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import { useInstance, useInstanceConfig } from "@clusterio/web_ui";
 import { InstanceSelector } from "./InstanceSelector";
 import { direction_to_text } from "../util";
 
-export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
+function EdgeStatusTag({ edge, instanceId = null }) {
+	const [instance] = useInstance(edge.target_instance);
+	const config = useInstanceConfig(edge.target_instance);
+	const target_edge = config?.["edge_transports.internal"]?.edges?.find?.(e => e.id === edge.target_edge);
+	const [targetEdgeTargetInstance] = useInstance(target_edge?.target_instance);
+	console.log("Status tag", edge, instanceId, instanceId !== null);
+	if (!edge.target_edge) {
+		return <Tag>Incomplete</Tag>;
+	}
+	if (!target_edge) {
+		return <Tooltip title="Target edge not found on destination instance">
+			<Tag color="warning">Missing</Tag>
+		</Tooltip>;
+	}
+	if (instanceId !== null && target_edge.target_instance !== instanceId) {
+		// eslint-disable-next-line max-len
+		return <Tooltip title={`Edge on target instance has incorrect instance target (${targetEdgeTargetInstance.name})`}>
+			<Tag color="error">Inconsistent</Tag>
+		</Tooltip>;
+	}
+	if (target_edge.target_edge !== edge.id) {
+		// eslint-disable-next-line max-len
+		return <Tooltip title={`Edge on target instance does not have this edge as its target (${target_edge.target_edge})`}>
+			<Tag color="error">Inconsistent</Tag>
+		</Tooltip>;
+	}
+
+	return <Tag color="success">OK</Tag>;
+}
+
+export function InputEdgeConfig({ value, onChange }) {
 	const [visible, setVisible] = React.useState(false);
 	const [newValue, setNewValue] = React.useState(value);
 
 	const edges = newValue.edges || [];
+
+	function displayEdge(edge, index) {
+		return <div key={`${index} ${edge.edge?.id}`}>
+			<Divider orientation="right">
+				<Space>
+					<EdgeStatusTag
+						edge={edge}
+						// Clusterio does not currently provide a way for a config input field to access the current
+						// instances ID so I am leaving this code disabled
+						// instanceId={instanceId}
+					/>
+					<Button onClick={() => {
+						setNewValue({
+							...newValue, edges: [
+								...edges.slice(0, index),
+								...edges.slice(index + 1),
+							],
+						});
+					}}>
+						<DeleteOutlined />
+					</Button>
+				</Space>
+			</Divider>
+			<EditEdge
+				key={index}
+				edge={edge}
+				onChange={(newEdge) => {
+					setNewValue({
+						...newValue, edges: [
+							...edges.slice(0, index),
+							newEdge,
+							...edges.slice(index + 1),
+						],
+					});
+				}} />
+		</div>;
+	}
+
 	return <>
 		<Button onClick={() => {
 			setNewValue(value);
@@ -29,32 +97,7 @@ export function InputEdgeConfig({ fieldDefinition, value, onChange }) {
 				setVisible(false);
 			}}
 		>
-			{edges.map((edge, index) => <div key={`${index} ${edge.id}`}>
-				<Divider orientation="right">
-					<Button onClick={() => {
-						setNewValue({
-							...newValue, edges: [
-								...edges.slice(0, index),
-								...edges.slice(index + 1),
-							],
-						});
-					}}>
-						<DeleteOutlined />
-					</Button>
-				</Divider>
-				<EditEdge
-					key={index}
-					edge={edge}
-					onChange={(newEdge) => {
-						setNewValue({
-							...newValue, edges: [
-								...edges.slice(0, index),
-								newEdge,
-								...edges.slice(index + 1),
-							],
-						});
-					}} />
-			</div>)}
+			{edges.map(displayEdge)}
 			{/* Button to add new edge */}
 			<Button onClick={() => {
 				setNewValue({

@@ -1,1 +1,1 @@
-export * from "./direction_to_text";
+export * from "./direction_to_string";

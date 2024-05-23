@@ -4,7 +4,7 @@ import PlusOutlined from "@ant-design/icons/PlusOutlined";
 import DeleteOutlined from "@ant-design/icons/DeleteOutlined";
 import { useInstance, useInstanceConfig } from "@clusterio/web_ui";
 import { InstanceSelector } from "./InstanceSelector";
-import { direction_to_text } from "../util";
+import { direction_to_string } from "../util";
 
 function EdgeStatusTag({ edge, instanceId = null }) {
 	const [instance] = useInstance(edge.target_instance);
@@ -57,7 +57,7 @@ export function InputEdgeConfig({ value, onChange }) {
 					// instances ID so I am leaving this code disabled
 					// instanceId={instanceId}
 					/>
-					<Button onClick={() => {
+					<Button danger onClick={() => {
 						setNewValue({
 							...newValue, edges: [
 								...edges.slice(0, index),
@@ -170,7 +170,7 @@ function EditEdge({ edge, onChange }) {
 				style={{ width: "auto", minWidth: "200px" }}
 			>
 				{[0, 2, 4, 6].map(value => <Select.Option key={value} value={value}>
-					{direction_to_text(value)}
+					{direction_to_string(value)}
 				</Select.Option>)}
 			</Select>
 		</div>
@@ -233,7 +233,7 @@ function TargetEdgeInfo({ edge }) {
 	// Visualize some information about the target edge to make it easier to pick the right one
 	return <div>
 		<p>Surface {target_edge.surface} at x{target_edge.origin?.[0]}, y{target_edge.origin?.[1]}</p>
-		<p>Pointing {direction_to_text(target_edge.direction)}</p>
+		<p>Pointing {direction_to_string(target_edge.direction)}</p>
 		<p style={{ whiteSpace: "wrap" }}>{status}</p>
 	</div>;
 }
